@@ -1,6 +1,8 @@
 -- Inserção dos clientes
-INSERT INTO clientes (cpf, nome, celular, endereco, email) VALUES ('9001', 'Huguinho Pato', '51985744566', 'Rua das Flores, 100', 'huguinho.pato@email.com');
-INSERT INTO clientes (cpf, nome, celular, endereco, email) VALUES ('9002', 'Luizinho Pato', '5199172079', 'Av. Central, 200', 'zezinho.pato@email.com');
+INSERT INTO clientes (cpf, nome, password, enabled, celular, endereco, email) VALUES ('9001', 'Huguinho Pato', '$2a$12$fbZJeT8oRzLt1DnKEwtsyuzG0JiFvR.tS07WjfcpPge4PdbVp5KLe', TRUE, '51985744566', 'Rua das Flores, 100', 'huguinho.pato@email.com');
+INSERT INTO clientes (cpf, nome, password, enabled, celular, endereco, email) VALUES ('9002', 'Luizinho Pato', '$2a$12$fbZJeT8oRzLt1DnKEwtsyuzG0JiFvR.tS07WjfcpPge4PdbVp5KLe', TRUE, '5199172079', 'Av. Central, 200', 'zezinho.pato@email.com');
+INSERT INTO authorities (cpf, authority) VALUES ('9001', 'ROLE_USER');
+INSERT INTO authorities (cpf, authority) VALUES ('9002', 'ROLE_USER');
 
 -- Inserção dos ingredientes
 INSERT INTO ingredientes (id, descricao) VALUES (1, 'Disco de pizza');

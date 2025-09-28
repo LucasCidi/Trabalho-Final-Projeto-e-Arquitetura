@@ -1,10 +1,22 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 create table if not exists clientes(
   cpf varchar(15) not null primary key,
   nome varchar(100) not null,
+  password varchar(100) not null,
+  enabled boolean not null,
   celular varchar(20) not null,
   endereco varchar(255) not null,
   email varchar(255) not null
 );
+
+create table if not exists authorities (
+  cpf varchar(50) not null,
+  authority varchar(50) not null, 
+  constraint fk_authorities_clientes foreign key(cpf) references clientes(cpf)
+);
+
+create unique index if not exists ix_auth_cpf on authorities (cpf, authority);
 
 create table if not exists ingredientes (
   id bigint primary key,

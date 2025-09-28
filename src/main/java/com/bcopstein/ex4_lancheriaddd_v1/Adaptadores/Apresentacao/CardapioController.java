@@ -18,7 +18,7 @@ import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CardapioResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
 
 @RestController
-@RequestMapping("/cardapio")
+@RequestMapping("")
 public class CardapioController {
     private RecuperarCardapioUC recuperaCardapioUC;
     private RecuperaListaCardapiosUC recuperaListaCardapioUC;
@@ -44,7 +44,7 @@ public class CardapioController {
         return cardapioPresenter;
     }
 
-    @GetMapping("/lista")
+    @GetMapping("/api/lista")
     @CrossOrigin("*")
     public List<CabecalhoCardapioPresenter> recuperaListaCardapios(){
          List<CabecalhoCardapioPresenter> lstCardapios = 
