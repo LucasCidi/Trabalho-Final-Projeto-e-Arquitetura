@@ -1,5 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
 create table if not exists clientes(
   cpf varchar(15) not null primary key,
   nome varchar(100) not null,
