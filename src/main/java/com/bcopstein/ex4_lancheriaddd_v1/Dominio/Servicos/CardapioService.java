@@ -31,4 +31,5 @@ public class CardapioService {
     public List<Produto> recuperaSugestoesDoChef(){
         return cardapioRepository.indicacoesDoChef();
     }
+
 }

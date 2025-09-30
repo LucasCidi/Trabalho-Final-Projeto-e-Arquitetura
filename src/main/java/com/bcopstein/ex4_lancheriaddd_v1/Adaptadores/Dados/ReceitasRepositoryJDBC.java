@@ -12,29 +12,31 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ReceitasRepository;
 
 @Repository
 public class ReceitasRepositoryJDBC implements ReceitasRepository {
-	private JdbcTemplate jdbcTemplate;
-    private IngredientesRepository ingredientesRepository;
+    private final JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	public ReceitasRepositoryJDBC(JdbcTemplate jdbcTemplate,IngredientesRepository ingredientesRepository) {
-		this.jdbcTemplate = jdbcTemplate;
-        this.ingredientesRepository = ingredientesRepository;
-	}
+    @Autowired
+    public ReceitasRepositoryJDBC(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public Receita recuperaReceita(long id) {
-        String sql = "SELECT r.id, r.titulo FROM receitas r WHERE r.id = ?";
-        List<Receita> receitas = this.jdbcTemplate.query(
-            sql,
-            ps -> ps.setLong(1, id),
-            (rs, rowNum) -> {
-                long receitaId = rs.getLong("id");
-                String titulo = rs.getString("titulo");
-                List<Ingrediente> ingredientes = ingredientesRepository.recuperaIngredientesReceita(receitaId);
-                return new Receita(receitaId, titulo, ingredientes); 
-            }
+        String sql = "SELECT id, titulo FROM receitas WHERE id = ?";
+        return jdbcTemplate.query(sql,
+                ps -> ps.setLong(1, id),
+                (rs, rowNum) -> new Receita(rs.getLong("id"), rs.getString("titulo"))
+        ).stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public List<Ingrediente> recuperaIngredientesReceita(long receitaId) {
+        String sql = "SELECT i.id, i.descricao FROM ingredientes i " +
+                "JOIN receita_ingrediente ri ON i.id = ri.ingrediente_id " +
+                "WHERE ri.receita_id = ?";
+        return jdbcTemplate.query(sql,
+                ps -> ps.setLong(1, receitaId),
+                (rs, rowNum) -> new Ingrediente(rs.getLong("id"), rs.getString("descricao"))
         );
-        return receitas.isEmpty() ? null : receitas.get(0);
     }
 
 }

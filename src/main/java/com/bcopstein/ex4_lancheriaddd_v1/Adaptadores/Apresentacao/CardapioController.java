@@ -53,4 +53,10 @@ public class CardapioController {
             .toList();
          return lstCardapios;
     }
+
+    @GetMapping("/api/corrente")
+    @CrossOrigin("*")
+    public CardapioPresenter recuperaCardapioCorrente(){
+        return recuperaCardapio(1L);
+    }
 }
