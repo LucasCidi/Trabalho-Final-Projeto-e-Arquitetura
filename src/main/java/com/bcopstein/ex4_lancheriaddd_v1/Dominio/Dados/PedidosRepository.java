@@ -10,4 +10,5 @@ public interface PedidosRepository {
     void salvarItensPedido(long pedidoId, List<ItemPedido> itens);
     long gerarNovoId();
     Pedido recuperarPedidoPorId(long pedidoId);
+    void atualizarStatusPedido(long pedidoId, Pedido.Status status);
 }

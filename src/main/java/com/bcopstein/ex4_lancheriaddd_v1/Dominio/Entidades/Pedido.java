@@ -12,6 +12,7 @@ public class Pedido {
         PREPARACAO,
         PRONTO,
         TRANSPORTE,
+        CANCELADO,
         ENTREGUE
     }
     private long id;

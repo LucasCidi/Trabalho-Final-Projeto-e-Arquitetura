@@ -79,8 +79,37 @@ public class PedidosService {
     public Pedido consultarStatusPedido(String clienteCpf, long pedidoId) {
         Pedido pedido = pedidosRepository.recuperarPedidoPorId(pedidoId);
         if (pedido == null || !pedido.getCliente().getCpf().equals(clienteCpf)) {
-            return null; // Pedido não encontrado ou não pertence ao cliente
+            return null;
         }
+        return pedido;
+    }
+
+    public Pedido cancelarPedido(String clienteCpf, long pedidoId) {
+        Pedido pedido = pedidosRepository.recuperarPedidoPorId(pedidoId);
+        if (pedido == null || !pedido.getCliente().getCpf().equals(clienteCpf)) {
+            return null;
+        }
+        if (pedido.getStatus() != Pedido.Status.APROVADO) {
+            return null;
+        }
+
+        Map<Long, Integer> ingredientesNecessarios = new HashMap<>();
+        for (ItemPedido item : pedido.getItens()) {
+            Produto produto = item.getItem();
+            int quantidade = item.getQuantidade();
+            Receita receita = produto.getReceita();
+            List<Ingrediente> ingredientes = receitasRepository.recuperaIngredientesReceita(receita.getId());
+            for (Ingrediente ingrediente : ingredientes) {
+                ingredientesNecessarios.merge(ingrediente.getId(), quantidade, Integer::sum);
+            }
+        }
+
+        for (Map.Entry<Long, Integer> entry : ingredientesNecessarios.entrySet()) {
+            estoqueRepository.restaurarEstoque(entry.getKey(), entry.getValue());
+        }
+
+        pedidosRepository.atualizarStatusPedido(pedidoId, Pedido.Status.CANCELADO);
+        pedido.setStatus(Pedido.Status.CANCELADO);
         return pedido;
     }
 }

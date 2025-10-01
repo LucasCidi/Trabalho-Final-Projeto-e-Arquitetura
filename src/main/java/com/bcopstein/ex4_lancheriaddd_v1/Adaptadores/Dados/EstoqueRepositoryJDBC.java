@@ -33,4 +33,10 @@ public class EstoqueRepositoryJDBC implements EstoqueRepository {
         String sql = "UPDATE itensEstoque SET quantidade = quantidade - ? WHERE ingrediente_id = ?";
         jdbcTemplate.update(sql, quantidadeUsada, ingredienteId);
     }
+
+    @Override
+    public void restaurarEstoque(long ingredienteId, int quantidadeUsada) {
+        String sql = "UPDATE itensEstoque SET quantidade = quantidade + ? WHERE ingrediente_id = ?";
+        jdbcTemplate.update(sql, quantidadeUsada, ingredienteId);
+    }
 }

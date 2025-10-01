@@ -68,4 +68,18 @@ public class PedidosController {
         PedidosPresenter response = new PedidosPresenter(pedido, "Status do pedido recuperado com sucesso");
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/cancelar/{pedidoId}")
+    public ResponseEntity<PedidosPresenter> cancelarPedido(@PathVariable long pedidoId) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String cpf = userDetails.getUsername();
+
+        Pedido pedido = pedidosService.cancelarPedido(cpf, pedidoId);
+        if (pedido == null) {
+            return ResponseEntity.badRequest().body(new PedidosPresenter(null, "Pedido não encontrado, não pertence ao cliente ou não pode ser cancelado"));
+        }
+
+        PedidosPresenter response = new PedidosPresenter(pedido, "Pedido cancelado com sucesso");
+        return ResponseEntity.ok(response);
+    }
 }
