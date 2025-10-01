@@ -19,14 +19,22 @@ public class PedidosService {
     private final ProdutosRepository produtosRepository;
     private final ReceitasRepository receitasRepository;
     private final EstoqueRepository estoqueRepository;
+    private final PagamentoService pagamentoService;
+    private final CozinhaService cozinhaService;
+    private final EntregaService entregaService;
 
     @Autowired
     public PedidosService(PedidosRepository pedidosRepository, ProdutosRepository produtosRepository,
-                          ReceitasRepository receitasRepository, EstoqueRepository estoqueRepository) {
+                          ReceitasRepository receitasRepository, EstoqueRepository estoqueRepository,
+                          PagamentoService pagamentoService, CozinhaService cozinhaService,
+                          EntregaService entregaService) {
         this.pedidosRepository = pedidosRepository;
         this.produtosRepository = produtosRepository;
         this.receitasRepository = receitasRepository;
         this.estoqueRepository = estoqueRepository;
+        this.pagamentoService = pagamentoService;
+        this.cozinhaService = cozinhaService;
+        this.entregaService = entregaService;
     }
 
     public Pedido submeterPedido(Cliente cliente, List<ItemPedido> itens) {
@@ -61,7 +69,7 @@ public class PedidosService {
 
         // Criar o pedido
         long pedidoId = pedidosRepository.gerarNovoId();
-        Pedido pedido = new Pedido(pedidoId, cliente, LocalDateTime.now(), itens, Pedido.Status.APROVADO,
+        Pedido pedido = new Pedido(pedidoId, cliente, null, itens, Pedido.Status.APROVADO,
                 valor, impostos, desconto, valorCobrado);
 
         // Salvar o pedido e itens
@@ -79,7 +87,7 @@ public class PedidosService {
     public Pedido consultarStatusPedido(String clienteCpf, long pedidoId) {
         Pedido pedido = pedidosRepository.recuperarPedidoPorId(pedidoId);
         if (pedido == null || !pedido.getCliente().getCpf().equals(clienteCpf)) {
-            return null;
+            return null; // Pedido não encontrado ou não pertence ao cliente
         }
         return pedido;
     }
@@ -111,5 +119,17 @@ public class PedidosService {
         pedidosRepository.atualizarStatusPedido(pedidoId, Pedido.Status.CANCELADO);
         pedido.setStatus(Pedido.Status.CANCELADO);
         return pedido;
+    }
+
+    public Pedido pagarPedido(String clienteCpf, long pedidoId) {
+        Pedido pedido = pedidosRepository.recuperarPedidoPorId(pedidoId);
+        if (pedido == null || !pedido.getCliente().getCpf().equals(clienteCpf)) {
+            return null;
+        }
+        if (pagamentoService.processarPagamento(clienteCpf, pedidoId)) {
+            cozinhaService.chegadaDePedido(pedido);
+            return pedido;
+        }
+        return null;
     }
 }

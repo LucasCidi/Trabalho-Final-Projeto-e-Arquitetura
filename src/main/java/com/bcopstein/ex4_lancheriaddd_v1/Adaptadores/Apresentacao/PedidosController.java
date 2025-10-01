@@ -30,12 +30,10 @@ public class PedidosController {
 
     @PostMapping("/submeter")
     public ResponseEntity<PedidosPresenter> submeterPedido(@RequestBody List<PedidosPresenter> itensRequest) {
-        // Obter o cliente autenticado
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String cpf = userDetails.getUsername();
-        Cliente cliente = new Cliente(cpf, "", "", true, "", "", ""); // Dados completos podem ser buscados, se necessário
+        Cliente cliente = new Cliente(cpf, "", "", true, "", "", "");
 
-        // Converter requisição para lista de ItemPedido
         List<ItemPedido> itens = itensRequest.stream().map(itemRequest -> {
             Produto produto = produtosRepository.recuperaProdutoPorid(itemRequest.getProdutoId());
             if (produto == null) {
@@ -44,13 +42,11 @@ public class PedidosController {
             return new ItemPedido(produto, itemRequest.getQuantidade());
         }).collect(Collectors.toList());
 
-        // Submeter o pedido
         Pedido pedido = pedidosService.submeterPedido(cliente, itens);
         if (pedido == null) {
             return ResponseEntity.badRequest().body(new PedidosPresenter(null, "Pedido negado: falta de ingredientes"));
         }
 
-        // Retornar resposta
         PedidosPresenter response = new PedidosPresenter(pedido, "Pedido aprovado com sucesso");
         return ResponseEntity.ok(response);
     }
@@ -80,6 +76,20 @@ public class PedidosController {
         }
 
         PedidosPresenter response = new PedidosPresenter(pedido, "Pedido cancelado com sucesso");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/pagar/{pedidoId}")
+    public ResponseEntity<PedidosPresenter> pagarPedido(@PathVariable long pedidoId) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String cpf = userDetails.getUsername();
+
+        Pedido pedido = pedidosService.pagarPedido(cpf, pedidoId);
+        if (pedido == null) {
+            return ResponseEntity.badRequest().body(new PedidosPresenter(null, "Pagamento não processado: pedido não encontrado, não pertence ao cliente ou não está aprovado"));
+        }
+
+        PedidosPresenter response = new PedidosPresenter(pedido, "Pagamento processado com sucesso");
         return ResponseEntity.ok(response);
     }
 }

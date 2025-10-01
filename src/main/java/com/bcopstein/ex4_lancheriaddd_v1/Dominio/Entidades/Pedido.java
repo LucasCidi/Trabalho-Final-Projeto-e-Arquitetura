@@ -49,7 +49,9 @@ public class Pedido {
     public LocalDateTime getDataHoraPagamento() {
         return dataHoraPagamento;
     }
+    public void setDataHoraPagamento(LocalDateTime dataHoraPagamento) {
 
+    }
     public List<ItemPedido> getItens() {
         return itens;
     }

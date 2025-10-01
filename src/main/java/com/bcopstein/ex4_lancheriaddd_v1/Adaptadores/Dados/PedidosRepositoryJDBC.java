@@ -63,7 +63,9 @@ public class PedidosRepositoryJDBC implements PedidosRepository {
                 (rs, rowNum) -> {
                     long id = rs.getLong("id");
                     String clienteCpf = rs.getString("cliente_cpf");
-                    LocalDateTime dataHoraPagamento = rs.getTimestamp("data_hora_pagamento").toLocalDateTime();
+                    LocalDateTime dataHoraPagamento = rs.getTimestamp("data_hora_pagamento") != null
+                            ? rs.getTimestamp("data_hora_pagamento").toLocalDateTime()
+                            : null;
                     Pedido.Status status = Pedido.Status.valueOf(rs.getString("status"));
                     double valor = rs.getDouble("valor");
                     double impostos = rs.getDouble("impostos");
@@ -97,6 +99,10 @@ public class PedidosRepositoryJDBC implements PedidosRepository {
         String sql = "UPDATE pedidos SET status = ? WHERE id = ?";
         jdbcTemplate.update(sql, status.name(), pedidoId);
     }
+
+    @Override
+    public void atualizarDataHoraPagamento(long pedidoId, LocalDateTime dataHoraPagamento) {
+        String sql = "UPDATE pedidos SET data_hora_pagamento = ? WHERE id = ?";
+        jdbcTemplate.update(sql, dataHoraPagamento, pedidoId);
+    }
 }
-
-
