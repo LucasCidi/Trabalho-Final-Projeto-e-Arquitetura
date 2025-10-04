@@ -13,4 +13,6 @@ public interface PedidosRepository {
     Pedido recuperarPedidoPorId(long pedidoId);
     void atualizarStatusPedido(long pedidoId, Pedido.Status status);
     void atualizarDataHoraPagamento(long pedidoId, LocalDateTime dataHoraPagamento);
+    List<Pedido> recuperaPedidosPorDatas(LocalDateTime data1, LocalDateTime data2);
+    List<Pedido> recuperaPedidosPorClienteEDatas(LocalDateTime data1, LocalDateTime data2, String cpf);
 }

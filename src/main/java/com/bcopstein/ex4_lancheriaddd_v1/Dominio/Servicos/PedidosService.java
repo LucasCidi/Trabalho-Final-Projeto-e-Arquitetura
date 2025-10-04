@@ -132,4 +132,15 @@ public class PedidosService {
         }
         return null;
     }
+
+    public List<Pedido> recuperaPedidosPorDatas(LocalDateTime data1, LocalDateTime data2) {
+        List<Pedido> pedidos = pedidosRepository.recuperaPedidosPorDatas(data1, data2);
+        return pedidos;
+    }
+
+    public List<Pedido> recuperaPedidosPorClienteEDatas(LocalDateTime data1, LocalDateTime data2, String cpf) {
+        List<Pedido> pedidos = pedidosRepository.recuperaPedidosPorClienteEDatas(data1, data2, cpf);
+        return pedidos;
+    }
+
 }

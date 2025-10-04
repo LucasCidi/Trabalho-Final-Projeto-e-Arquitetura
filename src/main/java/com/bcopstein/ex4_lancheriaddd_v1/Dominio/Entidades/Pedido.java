@@ -18,6 +18,7 @@ public class Pedido {
     private long id;
     private Cliente cliente;
     private LocalDateTime dataHoraPagamento;
+    private LocalDateTime dataHoraEntrega;
     private List<ItemPedido> itens;
     private Status status;
     private double valor;

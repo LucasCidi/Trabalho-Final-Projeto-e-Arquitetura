@@ -83,6 +83,7 @@ create table if not exists pedidos (
     impostos double precision not null,
     desconto double precision not null,
     valor_cobrado double precision not null,
+    data_hora_entrega timestamp,
     foreign key (cliente_cpf) references clientes(cpf)
     );
 

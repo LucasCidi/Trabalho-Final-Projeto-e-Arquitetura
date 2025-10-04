@@ -105,4 +105,65 @@ public class PedidosRepositoryJDBC implements PedidosRepository {
         String sql = "UPDATE pedidos SET data_hora_pagamento = ? WHERE id = ?";
         jdbcTemplate.update(sql, dataHoraPagamento, pedidoId);
     }
+
+    @Override
+    public List<Pedido> recuperaPedidosPorDatas(LocalDateTime data1, LocalDateTime data2) {
+        String sql = "SELECT id, cliente_cpf, data_hora_entrega, status, valor, impostos, desconto, valor_cobrado " +
+        "FROM pedidos " +
+        "WHERE data_hora_entrega BETWEEN ? AND ? " +
+        "AND status = 'ENTREGUE'";
+
+        return jdbcTemplate.query(sql, 
+        ps -> {
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(data1));
+            ps.setTimestamp(2, java.sql.Timestamp.valueOf(data2)); 
+        }, 
+        (rs, rowNum) -> {
+            long id = rs.getLong("id");
+            String clienteCpf = rs.getString("cliente_cpf");
+            LocalDateTime dataHoraEntrega = rs.getTimestamp("data_hora_entrega").toLocalDateTime();
+            Pedido.Status status = Pedido.Status.valueOf(rs.getString("status"));
+            double valor = rs.getDouble("valor");
+            double impostos = rs.getDouble("impostos");
+            double desconto = rs.getDouble("desconto");
+            double valorCobrado = rs.getDouble("valor_cobrado");
+
+            Cliente cliente = new Cliente(clienteCpf, "", "", true, "", "", "");
+            List<ItemPedido> itens = recuperarItensPedido(id);
+
+            return new Pedido(id, cliente, dataHoraEntrega, itens, status, valor, impostos, desconto, valorCobrado);
+        }
+    );
+    }
+
+    @Override
+    public List<Pedido> recuperaPedidosPorClienteEDatas(LocalDateTime data1, LocalDateTime data2, String cpf) {
+        String sql = "SELECT id, cliente_cpf, data_hora_entrega, status, valor, impostos, desconto, valor_cobrado " +
+        "FROM pedidos " + 
+        "WHERE data_hora_entrega BETWEEN ? AND ? " + 
+        "AND status = 'ENTREGUE' " +
+        "AND cliente_cpf = ?";
+
+        return jdbcTemplate.query(sql,
+        ps -> {
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(data1));
+            ps.setTimestamp(2, java.sql.Timestamp.valueOf(data2)); 
+            ps.setString(3, cpf);
+        }, (rs, rowNum) -> {
+            long id = rs.getLong("id");
+            String clienteCpf = rs.getString("cliente_cpf");
+            LocalDateTime dataHoraEntrega = rs.getTimestamp("data_hora_entrega").toLocalDateTime();
+            Pedido.Status status = Pedido.Status.valueOf(rs.getString("status"));
+            double valor = rs.getDouble("valor");
+            double impostos = rs.getDouble("impostos");
+            double desconto = rs.getDouble("desconto");
+            double valorCobrado = rs.getDouble("valor_cobrado");
+
+            Cliente cliente = new Cliente(clienteCpf, "", "", true, "", "", "");
+            List<ItemPedido> itens = recuperarItensPedido(id);
+
+            return new Pedido(id, cliente, dataHoraEntrega, itens, status, valor, impostos, desconto, valorCobrado);
+        }
+        );
+    }
 }

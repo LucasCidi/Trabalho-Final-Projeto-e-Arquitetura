@@ -13,7 +13,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @RestController
@@ -91,5 +94,28 @@ public class PedidosController {
 
         PedidosPresenter response = new PedidosPresenter(pedido, "Pagamento processado com sucesso");
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/entregue") 
+    public ResponseEntity<List<PedidosPresenter>> pedidosEntregados(@RequestParam("data1") LocalDateTime data1, @RequestParam("data2") LocalDateTime data2) {
+        List<Pedido> pedidos = pedidosService.recuperaPedidosPorDatas(data1, data2);
+
+        List<PedidosPresenter> pedidosPresenter = pedidos.stream()
+            .map(pedido -> new PedidosPresenter(pedido, null))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(pedidosPresenter);
+    }
+
+    @GetMapping("/entregueParaCliente")
+    public ResponseEntity<List<PedidosPresenter>> pedidosEntreguesParaCliente(@RequestParam("data1") LocalDateTime data1, 
+                                                                                @RequestParam("data2") LocalDateTime data2,
+                                                                                @RequestParam("cpf") String cpf) {
+        List<Pedido> pedidos = pedidosService.recuperaPedidosPorClienteEDatas(data1, data2, cpf);
+
+        List<PedidosPresenter> pedidosPresenter = pedidos.stream() 
+            .map(pedido -> new PedidosPresenter(pedido, null))
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(pedidosPresenter);
     }
 }
