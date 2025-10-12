@@ -1,11 +1,8 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Apresentacao;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Apresentacao.Presenters.PedidosPresenter;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ProdutosRepository;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.PedidosUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.PedidosService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,44 +11,31 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/pedidos")
 public class PedidosController {
     private final PedidosService pedidosService;
-    private final ProdutosRepository produtosRepository;
+    private final PedidosUC pedidosUC;
 
     @Autowired
-    public PedidosController(PedidosService pedidosService, ProdutosRepository produtosRepository) {
+    public PedidosController(PedidosService pedidosService, PedidosUC pedidosUC) {
         this.pedidosService = pedidosService;
-        this.produtosRepository = produtosRepository;
+        this.pedidosUC = pedidosUC;
     }
 
     @PostMapping("/submeter")
     public ResponseEntity<PedidosPresenter> submeterPedido(@RequestBody List<PedidosPresenter> itensRequest) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String cpf = userDetails.getUsername();
-        Cliente cliente = new Cliente(cpf, "", "", true, "", "", "");
-
-        List<ItemPedido> itens = itensRequest.stream().map(itemRequest -> {
-            Produto produto = produtosRepository.recuperaProdutoPorid(itemRequest.getProdutoId());
-            if (produto == null) {
-                throw new IllegalArgumentException("Produto não encontrado: " + itemRequest.getProdutoId());
-            }
-            return new ItemPedido(produto, itemRequest.getQuantidade());
-        }).collect(Collectors.toList());
-
-        Pedido pedido = pedidosService.submeterPedido(cliente, itens);
-        if (pedido == null) {
-            return ResponseEntity.badRequest().body(new PedidosPresenter(null, "Pedido negado: falta de ingredientes"));
+        try {
+            PedidosPresenter response = pedidosUC.submeterPedidoFromRequest(cpf, itensRequest);
+            return response.getPedidoId() == null ? ResponseEntity.badRequest().body(response) : ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new PedidosPresenter(null, e.getMessage()));
         }
-
-        PedidosPresenter response = new PedidosPresenter(pedido, "Pedido aprovado com sucesso");
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/status/{pedidoId}")
@@ -96,25 +80,25 @@ public class PedidosController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/entregue") 
+    @GetMapping("/entregue")
     public ResponseEntity<List<PedidosPresenter>> pedidosEntregados(@RequestParam("data1") LocalDateTime data1, @RequestParam("data2") LocalDateTime data2) {
         List<Pedido> pedidos = pedidosService.recuperaPedidosPorDatas(data1, data2);
 
         List<PedidosPresenter> pedidosPresenter = pedidos.stream()
-            .map(pedido -> new PedidosPresenter(pedido, null))
-            .collect(Collectors.toList());
+                .map(pedido -> new PedidosPresenter(pedido, null))
+                .collect(Collectors.toList());
         return ResponseEntity.ok(pedidosPresenter);
     }
 
     @GetMapping("/entregueParaCliente")
-    public ResponseEntity<List<PedidosPresenter>> pedidosEntreguesParaCliente(@RequestParam("data1") LocalDateTime data1, 
-                                                                                @RequestParam("data2") LocalDateTime data2,
-                                                                                @RequestParam("cpf") String cpf) {
+    public ResponseEntity<List<PedidosPresenter>> pedidosEntreguesParaCliente(@RequestParam("data1") LocalDateTime data1,
+                                                                              @RequestParam("data2") LocalDateTime data2,
+                                                                              @RequestParam("cpf") String cpf) {
         List<Pedido> pedidos = pedidosService.recuperaPedidosPorClienteEDatas(data1, data2, cpf);
 
-        List<PedidosPresenter> pedidosPresenter = pedidos.stream() 
-            .map(pedido -> new PedidosPresenter(pedido, null))
-            .collect(Collectors.toList());
+        List<PedidosPresenter> pedidosPresenter = pedidos.stream()
+                .map(pedido -> new PedidosPresenter(pedido, null))
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(pedidosPresenter);
     }

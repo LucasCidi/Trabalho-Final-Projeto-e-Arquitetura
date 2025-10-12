@@ -3,17 +3,14 @@ package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Apresentacao.Presenters;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 
 public class PedidosPresenter {
-    // Dados de entrada
     private long produtoId;
     private int quantidade;
 
-    // Dados de saída
     private Long pedidoId;
     private String mensagem;
     private Double valorTotal;
     private String status;
 
-    // requisição
     public PedidosPresenter() {}
 
     public PedidosPresenter(long produtoId, int quantidade) {
@@ -21,7 +18,6 @@ public class PedidosPresenter {
         this.quantidade = quantidade;
     }
 
-    // resposta
     public PedidosPresenter(Pedido pedido, String mensagem) {
         this.pedidoId = pedido != null ? pedido.getId() : null;
         this.mensagem = mensagem;

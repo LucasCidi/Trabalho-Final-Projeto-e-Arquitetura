@@ -23,7 +23,7 @@ public class IngredientesRepositoryJDBC implements IngredientesRepository{
         List<Ingrediente> ingredientes = this.jdbcTemplate.query(
                 sql,
                 ps -> {
-                }, // Sem parâmetros
+                },
                 (rs, rowNum) -> new Ingrediente(rs.getLong("id"), rs.getString("descricao")));
         return ingredientes;
     }

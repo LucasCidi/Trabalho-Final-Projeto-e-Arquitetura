@@ -23,24 +23,22 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(DataSource dataSource) {
         JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
-
         manager.setUsersByUsernameQuery("SELECT cpf, password, enabled FROM clientes WHERE cpf = ?");
         manager.setAuthoritiesByUsernameQuery("SELECT cpf, 'ROLE_' || authority FROM authorities WHERE cpf = ?");
-
         return manager;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-            
-            http.csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/api/admin").hasRole("ADMIN")
-                .requestMatchers("/api/**").authenticated()
-                .anyRequest().denyAll())
-            .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-            .httpBasic(Customizer.withDefaults());
-            return http.build();
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/api/clientes/registrar").permitAll()
+                        .requestMatchers("/api/admin").hasRole("ADMIN")
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().denyAll())
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .httpBasic(Customizer.withDefaults());
+        return http.build();
     }
 }
