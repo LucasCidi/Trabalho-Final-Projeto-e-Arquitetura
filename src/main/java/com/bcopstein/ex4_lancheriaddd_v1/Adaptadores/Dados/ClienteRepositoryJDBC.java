@@ -27,7 +27,7 @@ public class ClienteRepositoryJDBC  implements ClienteRepository {
                 cliente.getCpf(),
                 cliente.getNome(),
                 encodedPassword,
-                cliente.getEnabled() != null ? cliente.getEnabled() : true, // Default to true if not provided
+                cliente.getEnabled() != null ? cliente.getEnabled() : true,
                 cliente.getCelular(),
                 cliente.getEndereco(),
                 cliente.getEmail()

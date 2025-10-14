@@ -78,7 +78,7 @@ public class PedidosService {
             return null;
         }
         if (pagamentoService.processarPagamento(clienteCpf, pedidoId)) {
-            pedidosUC.atualizarEstoqueAposPagamento(pedido); // Update stock after payment
+            pedidosUC.atualizarEstoqueAposPagamento(pedido);
             cozinhaService.chegadaDePedido(pedido);
             return pedido;
         }
