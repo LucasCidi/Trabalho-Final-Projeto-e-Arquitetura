@@ -1,41 +1,43 @@
-version: '3.8'
-
 services:
-  name-server:
-    build:
-      context: ./name-server
-      dockerfile: Dockerfile
-    container_name: eureka-server
+  pizzaria:
+    build: pizzaria-service
+    image: pizzaria
+    ports:
+      - "8000:8000"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://naming-server:8761/eureka
+  estoque:
+    build: estoque-service
+    image: estoque
+    ports:
+      - "8100:8100"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://naming-server:8761/eureka
+  api-gateway:
+    build: api-gateway
+    image: gateway
+    ports:
+      - "8765:8765"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://naming-server:8761/eureka
+  naming-server:
+    build: naming-server
+    image: nameserver
     ports:
       - "8761:8761"
-    environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
     networks:
-      - app-network
-
-  gateway:
-    build:
-      context: ./gateway
-      dockerfile: Dockerfile
-    container_name: api-gateway
-    ports:
-      - "8080:8080"
-    environment:
-      - EUREKA_URL=http://eureka-server:8761/eureka/
-      - SPRING_APPLICATION_NAME=gateway
-      - SERVER_PORT=8080
-    depends_on:
-      name-server:
-        condition: service_healthy
-    networks:
-      - app-network
-
+      - currency-network
 networks:
-  app-network:
-    driver: bridge
+  currency-network:    
